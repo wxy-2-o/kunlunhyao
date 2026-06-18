@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>AI无界 · 创意赋新章</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap');
+
+:root {
+  --cyan: #00C4CC;
+  --purple: #7B2FF7;
+  --dark: #0a0a1a;
+  --light: #f8f9fa;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; font-family:'Noto Sans SC',sans-serif; background:var(--dark); color:var(--light); }
+
+.screen {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding: 40px 24px;
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  z-index:1; opacity:0; transform:scale(0.95); pointer-events:none;
+}
+.screen.active { opacity:1; transform:scale(1); pointer-events:auto; z-index:10; }
+
+/* ===== Orb background ===== */
+.orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(80px); }
+
+/* ===== Intro ===== */
+#s-intro { background:linear-gradient(160deg,#050510 0%,#0a1020 50%,#0f0a2e 100%); }
+.intro-badge { display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:20px; background:rgba(0,196,204,0.1); border:1px solid rgba(0,196,204,0.2); font-size:10px; color:var(--cyan); letter-spacing:2px; margin-bottom:16px; }
+.intro-badge span { width:5px; height:5px; border-radius:50%; background:var(--cyan); animation:blink 1.5s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.intro-logo-wrap { position:relative; margin-bottom:24px; }
+.intro-logo-circle {
+  width:100px; height:100px; border-radius:50%;
+  background: linear-gradient(135deg,var(--cyan),var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; font-weight:900; color:#fff; letter-spacing:-1px;
+  box-shadow:0 0 60px rgba(0,196,204,0.3);
+  animation: pulse 3s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(0,196,204,0.3)} 50%{transform:scale(1.05);box-shadow:0 0 80px rgba(123,47,247,0.4)} }
+.intro-ring { position:absolute; inset:-15px; border-radius:50%; border:1px solid rgba(0,196,204,0.15); animation:spin 12s linear infinite; }
+.intro-ring::before { content:''; position:absolute; inset:8px; border-radius:50%; border:1px solid rgba(123,47,247,0.1); }
+@keyframes spin { to{transform:rotate(360deg)} }
+.intro-title { font-size:9vw; font-weight:900; color:#fff; text-align:center; line-height:1.15; margin-bottom:12px; }
+.intro-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.intro-sub { font-size:13px; color:rgba(255,255,255,0.45); text-align:center; line-height:1.8; margin-bottom:32px; max-width:320px; }
+.intro-stats { display:flex; gap:20px; margin-bottom:36px; }
+.intro-stat { text-align:center; }
+.intro-stat .n { font-size:20px; font-weight:900; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.intro-stat .l { font-size:9px; color:rgba(255,255,255,0.35); margin-top:4px; letter-spacing:1px; }
+.intro-btn {
+  padding:15px 52px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:15px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px 30px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease; animation:bounce 2s ease-in-out infinite;
+}
+.intro-btn:active { transform:scale(0.96); }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.intro-note { margin-top:14px; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:1px; }
+
+/* ===== Boundary Breaker ===== */
+#s-break { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.break-header { text-align:center; margin-bottom:20px; width:100%; max-width:400px; }
+.break-step { font-size:10px; color:var(--cyan); letter-spacing:3px; margin-bottom:8px; }
+.break-title { font-size:7vw; font-weight:900; color:#fff; line-height:1.2; }
+.break-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.break-sub { font-size:12px; color:rgba(255,255,255,0.4); margin-top:8px; }
+
+.break-wall-wrap { position:relative; width:100%; max-width:360px; aspect-ratio:9/10; margin-bottom:16px; }
+.break-wall {
+  width:100%; height:100%; border-radius:28px; position:relative; overflow:hidden; cursor:pointer;
+  transition:transform 0.15s ease;
+}
+.break-wall:active { transform:scale(0.97); }
+
+/* Glass wall effect */
+.wall-bg {
+  position:absolute; inset:0;
+  background: linear-gradient(135deg, rgba(0,196,204,0.08), rgba(123,47,247,0.08));
+  border:1.5px solid rgba(255,255,255,0.1); border-radius:28px;
+  backdrop-filter:blur(10px);
+}
+.wall-text {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; z-index:2;
+}
+.wall-emoji { font-size:48px; margin-bottom:12px; filter:grayscale(0.3); }
+.wall-label { font-size:18px; font-weight:700; color:rgba(255,255,255,0.7); text-align:center; line-height:1.5; }
+.wall-hint { font-size:11px; color:rgba(255,255,255,0.3); margin-top:16px; letter-spacing:1px; }
+
+/* Crack overlay */
+.wall-cracks { position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0; transition:opacity 0.3s; }
+.wall-cracks.show { opacity:1; }
+.crack-line { position:absolute; background:rgba(0,196,204,0.6); border-radius:1px; transform-origin:center; }
+.crack-particle {
+  position:absolute; width:4px; height:4px; border-radius:50%;
+  background:var(--cyan); pointer-events:none; opacity:0;
+}
+
+/* Progress ring */
+.break-progress { position:relative; width:56px; height:56px; margin-bottom:16px; }
+.break-progress svg { transform:rotate(-90deg); }
+.break-progress circle { fill:none; stroke-width:3; }
+.break-progress .bg { stroke:rgba(255,255,255,0.08); }
+.break-progress .fg { stroke:var(--cyan); stroke-linecap:round; transition:stroke-dashoffset 0.2s ease; }
+.break-progress-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--cyan); }
+
+.break-tip { font-size:11px; color:rgba(255,255,255,0.3); letter-spacing:1px; }
+
+/* Shatter animation */
+@keyframes shatterRotate { 0%{transform:rotate(0)} 100%{transform:rotate(20deg)} }
+@keyframes shatterFly { 0%{opacity:1;transform:translate(0,0) scale(1)} 100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0.3)} }
+.wall-shatter-piece {
+  position:absolute; border-radius:8px; z-index:10;
+  animation:shatterFly 0.6s ease-out forwards;
+}
+
+/* ===== Reveal ===== */
+#s-reveal { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.reveal-icon { font-size:56px; margin-bottom:20px; animation:float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+.reveal-title { font-size:8vw; font-weight:900; color:#fff; text-align:center; line-height:1.15; margin-bottom:12px; }
+.reveal-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.reveal-desc { font-size:13px; color:rgba(255,255,255,0.5); text-align:center; line-height:1.8; max-width:320px; margin-bottom:28px; }
+.reveal-tags { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:32px; }
+.reveal-tags span { padding:5px 12px; border-radius:20px; background:rgba(0,196,204,0.1); border:1px solid rgba(0,196,204,0.2); font-size:11px; color:var(--cyan); }
+.reveal-btn {
+  padding:14px 48px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:14px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px 25px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease;
+}
+.reveal-btn:active { transform:scale(0.96); }
+
+/* ===== Result ===== */
+#s-result { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.result-emoji { font-size:64px; margin-bottom:20px; animation:celebrate 1s ease-in-out infinite alternate; }
+@keyframes celebrate { 0%{transform:scale(1) rotate(-5deg)} 100%{transform:scale(1.1) rotate(5deg)} }
+.result-title { font-size:9vw; font-weight:900; color:#fff; text-align:center; line-height:1.15; margin-bottom:10px; }
+.result-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.result-sub { font-size:13px; color:rgba(255,255,255,0.45); text-align:center; line-height:1.7; max-width:340px; margin-bottom:28px; }
+.result-cards { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:380px; margin-bottom:28px; }
+.result-card {
+  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px; padding:14px 10px; text-align:center;
+}
+.result-card .ic { font-size:24px; margin-bottom:6px; }
+.result-card .t { font-size:12px; color:#fff; font-weight:700; margin-bottom:3px; }
+.result-card .d { font-size:9px; color:rgba(255,255,255,0.35); line-height:1.5; }
+.result-btn {
+  padding:14px 48px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:14px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px 25px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease;
+}
+.result-btn:active { transform:scale(0.96); }
+.result-note { margin-top:14px; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:1px; }
+
+/* ===== CTA ===== */
+#s-cta { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.cta-logo-wrap { position:relative; margin-bottom:24px; }
+.cta-logo-circle {
+  width:80px; height:80px; border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:900; color:#fff; letter-spacing:-1px;
+  box-shadow:0 0 50px rgba(0,196,204,0.25);
+}
+.cta-title { font-size:8vw; font-weight:900; color:#fff; text-align:center; line-height:1.15; margin-bottom:8px; }
+.cta-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.cta-sub { font-size:13px; color:rgba(255,255,255,0.45); text-align:center; line-height:1.7; max-width:340px; margin-bottom:24px; }
+.cta-nums { display:flex; gap:16px; margin-bottom:28px; }
+.cta-n { text-align:center; }
+.cta-n .v { font-size:18px; font-weight:900; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.cta-n .l { font-size:9px; color:rgba(255,255,255,0.35); margin-top:3px; letter-spacing:1px; }
+.cta-qr {
+  width:130px; height:130px; background:#fff; border-radius:16px;
+  margin:0 auto 16px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 30px rgba(0,196,204,0.12); overflow:hidden;
+}
+.cta-qr img { width:90%; height:90%; object-fit:contain; }
+.cta-qr-text { font-size:10px; color:rgba(255,255,255,0.35); margin-bottom:20px; }
+.cta-btn {
+  display:inline-block; padding:15px 48px; border-radius:50px;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:14px; font-weight:700; letter-spacing:2px;
+  text-decoration:none; box-shadow:0 8px 30px rgba(0,196,204,0.3);
+  transition:all 0.3s ease;
+}
+.cta-btn:active { transform:scale(0.96); }
+.cta-footer { margin-top:14px; font-size:9px; color:rgba(255,255,255,0.2); letter-spacing:1px; }
+
+/* ===== Direction cards in CTA ===== */
+.cta-directions { display:flex; gap:10px; width:100%; max-width:400px; margin-bottom:28px; }
+.cta-dir {
+  flex:1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px; padding:16px 10px; text-align:center;
+}
+.cta-dir .dir-num { font-size:10px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+.cta-dir .dir-title { font-size:13px; color:#fff; font-weight:700; margin-bottom:6px; line-height:1.4; }
+.cta-dir .dir-desc { font-size:9px; color:rgba(255,255,255,0.35); line-height:1.6; }
+</style>
+</head>
+<body>
+
+<div class="orb" style="width:300px;height:300px;background:rgba(0,196,204,0.06);top:-80px;right:-80px;"></div>
+<div class="orb" style="width:250px;height:250px;background:rgba(123,47,247,0.05);bottom:-60px;left:-60px;"></div>
+
+<!-- ========== Screen 0: Intro ========== -->
+<div class="screen active" id="s-intro">
+  <div class="intro-badge"><span></span>第18届大广赛 · 科技类命题</div>
+  <div class="intro-logo-wrap">
+    <div class="intro-logo-circle">AI</div>
+    <div class="intro-ring"></div>
+  </div>
+  <h1 class="intro-title">AI<em>无界</em><br>创意赋新章</h1>
+  <p class="intro-sub">用AI打破创意边界<br>让每一个人都能创造</p>
+  <div class="intro-stats">
+    <div class="intro-stat"><div class="n">18届</div><div class="l">赛事历程</div></div>
+    <div class="intro-stat"><div class="n">2005</div><div class="l">创立至今</div></div>
+    <div class="intro-stat"><div class="n">全国</div><div class="l">高校参与</div></div>
+  </div>
+  <button class="intro-btn" onclick="startBreak()">击碎创意边界</button>
+  <p class="intro-note">互动体验 · 约45秒</p>
+</div>
+
+<!-- ========== Screen 1-4: Boundary Breaker ========== -->
+<div class="screen" id="s-break">
+  <div class="break-header">
+    <div class="break-step" id="breakStep">BOUNDARY 1 / 4</div>
+    <h2 class="break-title">打破<em>创意边界</em></h2>
+    <p class="break-sub" id="breakSub">点击击碎它</p>
+  </div>
+  <div class="break-wall-wrap">
+    <div class="break-wall" id="breakWall" ontouchstart="hitWall(event)" onclick="hitWall(event)">
+      <div class="wall-bg"></div>
+      <div class="wall-text">
+        <div class="wall-emoji" id="wallEmoji">🧱</div>
+        <div class="wall-label" id="wallLabel">我无从下手</div>
+        <div class="wall-hint" id="wallHint">点击击碎边界</div>
+      </div>
+      <canvas id="crackCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;"></canvas>
+    </div>
+  </div>
+  <div class="break-progress">
+    <svg width="56" height="56" viewBox="0 0 56 56">
+      <circle class="bg" cx="28" cy="28" r="24"/>
+      <circle class="fg" id="progCircle" cx="28" cy="28" r="24"
+        stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+    </svg>
+    <div class="break-progress-text" id="progText">0</div>
+  </div>
+  <p class="break-tip" id="breakTip">用力点击！</p>
+</div>
+
+<!-- ========== Screen: Reveal ========== -->
+<div class="screen" id="s-reveal">
+  <div class="reveal-icon" id="revealIcon">✨</div>
+  <h2 class="reveal-title" id="revealTitle">AI帮你<br><em>找到灵感</em></h2>
+  <p class="reveal-desc" id="revealDesc">输入一句话描述，AI即可生成多版创意方案，灵感不再卡壳</p>
+  <div class="reveal-tags" id="revealTags">
+    <span>AI生成</span><span>多方案</span><span>快速迭代</span>
+  </div>
+  <button class="reveal-btn" id="revealBtn" onclick="nextReveal()">继续击碎</button>
+</div>
+
+<!-- ========== Screen: Result ========== -->
+<div class="screen" id="s-result">
+  <div class="result-emoji">🎉</div>
+  <h2 class="result-title">你的创意<br><em>已无界</em></h2>
+  <p class="result-sub">4道边界全部击碎<br>AI让创意不再有门槛</p>
+  <div class="result-cards">
+    <div class="result-card"><div class="ic">🤖</div><div class="t">AI生成</div><div class="d">一句话出图<br>多方案可选</div></div>
+    <div class="result-card"><div class="ic">🎨</div><div class="t">海量模板</div><div class="d">20万+模板<br>直接使用</div></div>
+    <div class="result-card"><div class="ic">🌏</div><div class="t">地域创作</div><div class="d">AI抽象提取<br>文化内核</div></div>
+    <div class="result-card"><div class="ic">🏆</div><div class="t">大广赛</div><div class="d">第18届<br>等你来战</div></div>
+  </div>
+  <button class="result-btn" onclick="goCTA()">参加大广赛</button>
+  <p class="result-note">第18届大广赛 · AI无界 创意赋新章</p>
+</div>
+
+<!-- ========== Screen: CTA ========== -->
+<div class="screen" id="s-cta">
+  <div class="cta-logo-wrap">
+    <div class="cta-logo-circle">AI</div>
+  </div>
+  <h2 class="cta-title">加入<em>第18届</em><br>大广赛</h2>
+  <p class="cta-sub">两个创作方向 · AI工具助力<br>让创意无界，让作品出圈</p>
+  <div class="cta-directions">
+    <div class="cta-dir">
+      <div class="dir-num">DIRECTION 1</div>
+      <div class="dir-title">大广赛IP<br>形象设计</div>
+      <div class="dir-desc">运用AI创作大广赛专属IP形象及周边</div>
+    </div>
+    <div class="cta-dir">
+      <div class="dir-num">DIRECTION 2</div>
+      <div class="dir-title">地域"印记"<br>徽章创作</div>
+      <div class="dir-desc">AI抽象提取家乡文化，创作专属徽章</div>
+    </div>
+  </div>
+  <div class="cta-nums">
+    <div class="cta-n"><div class="v">AI</div><div class="l">生成式工具</div></div>
+    <div class="cta-n"><div class="v">原创</div><div class="l">必须原创</div></div>
+    <div class="cta-n"><div class="v">免费</div><div class="l">字体会员</div></div>
+  </div>
+  <div class="cta-qr" id="ctaQr">
+    <span style="font-size:11px;color:#ccc;">扫码报名</span>
+  </div>
+  <p class="cta-qr-text">扫描二维码 · 报名参赛</p>
+  <a href="#" class="cta-btn" onclick="alert('请访问大广赛官网报名');return false;">立即报名参赛</a>
+  <p class="cta-footer">第18届全国大学生广告艺术大赛 · AI无界 创意赋新章</p>
+</div>
+
+<script>
+// ===== Data =====
+const boundaries = [
+  {
+    emoji: '😵', label: '我无从下手', hint: '点击击碎边界',
+    revealIcon: '💡', revealTitle: 'AI帮你\n找到灵感',
+    revealDesc: '输入一句话描述，AI即可生成多版创意方案，灵感不再卡壳',
+    tags: ['AI生成','多方案','快速迭代']
+  },
+  {
+    emoji: '🚫', label: '我不懂设计', hint: '继续击碎！',
+    revealIcon: '🎨', revealTitle: 'AI帮你\n做出好设计',
+    revealDesc: '20万+精美模板，拖拽编辑即可出图，设计门槛降至零',
+    tags: ['模板丰富','拖拽编辑','零基础']
+  },
+  {
+    emoji: '⏳', label: '我没时间做', hint: '再加把劲！',
+    revealIcon: '⚡', revealTitle: 'AI帮你\n极速出图',
+    revealDesc: '海报、封面、PPT，3分钟完成原本需要4小时的设计工作',
+    tags: ['极速出图','高效产出','省时省力']
+  },
+  {
+    emoji: '🔒', label: '我的创意有边界', hint: '最后一击！',
+    revealIcon: '🌍', revealTitle: 'AI让\n创意无界',
+    revealDesc: '无论地域、文化、语言，AI帮你把任何创意变成现实',
+    tags: ['无界创意','文化融合','全球表达']
+  }
+];
+
+let currentBoundary = 0;
+let hitCount = 0;
+const HITS_NEEDED = 8;
+
+// ===== Navigation =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== Start =====
+function startBreak() {
+  currentBoundary = 0;
+  hitCount = 0;
+  loadBoundary();
+  showScreen('s-break');
+}
+
+// ===== Load boundary =====
+function loadBoundary() {
+  const b = boundaries[currentBoundary];
+  document.getElementById('breakStep').textContent = `BOUNDARY ${currentBoundary+1} / 4`;
+  document.getElementById('wallEmoji').textContent = b.emoji;
+  document.getElementById('wallLabel').textContent = b.label;
+  document.getElementById('wallHint').textContent = b.hint;
+  document.getElementById('breakTip').textContent = currentBoundary === 0 ? '用力点击！' : ['继续击碎！','再加把劲！','最后一击！'][currentBoundary] || '继续！';
+  hitCount = 0;
+  updateProgress();
+
+  // Reset wall visibility
+  const wall = document.getElementById('breakWall');
+  wall.style.opacity = '1';
+  wall.style.pointerEvents = 'auto';
+
+  // Reset crack canvas
+  const canvas = document.getElementById('crackCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+// ===== Hit wall =====
+function hitWall(e) {
+  e.preventDefault();
+  hitCount++;
+  updateProgress();
+  spawnCrack();
+  shakeWall();
+
+  if (hitCount >= HITS_NEEDED) {
+    shatterWall();
+  }
+}
+
+function updateProgress() {
+  const pct = Math.min(hitCount / HITS_NEEDED, 1);
+  const circumference = 150.8;
+  const offset = circumference * (1 - pct);
+  document.getElementById('progCircle').style.strokeDashoffset = offset;
+  document.getElementById('progText').textContent = Math.round(pct * 100);
+}
+
+function shakeWall() {
+  const wall = document.getElementById('breakWall');
+  wall.style.transform = 'scale(0.95)';
+  setTimeout(() => { wall.style.transform = 'scale(1)'; }, 100);
+}
+
+// ===== Crack effect =====
+function spawnCrack() {
+  const canvas = document.getElementById('crackCanvas');
+  const ctx = canvas.getContext('2d');
+  if (canvas.width === 0) { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+
+  const x = Math.random() * canvas.width;
+  const y = Math.random() * canvas.height;
+  const len = 20 + Math.random() * 40;
+  const angle = Math.random() * Math.PI * 2;
+
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + Math.cos(angle)*len, y + Math.sin(angle)*len);
+  ctx.strokeStyle = `rgba(0,196,204,${0.3 + Math.random()*0.4})`;
+  ctx.lineWidth = 1 + Math.random() * 2;
+  ctx.stroke();
+
+  // Branch
+  const bx = x + Math.cos(angle)*len;
+  const by = y + Math.sin(angle)*len;
+  ctx.beginPath();
+  ctx.moveTo(bx, by);
+  ctx.lineTo(bx + Math.cos(angle+0.5)*len*0.5, by + Math.sin(angle+0.5)*len*0.5);
+  ctx.strokeStyle = `rgba(123,47,247,${0.2 + Math.random()*0.3})`;
+  ctx.lineWidth = 0.5 + Math.random();
+  ctx.stroke();
+}
+
+// ===== Shatter =====
+function shatterWall() {
+  const wall = document.getElementById('breakWall');
+  wall.style.pointerEvents = 'none';
+
+  // Create shatter pieces
+  const wrap = document.querySelector('.break-wall-wrap');
+  const rect = wall.getBoundingClientRect();
+  const colors = ['rgba(0,196,204,0.3)','rgba(123,47,247,0.3)','rgba(0,196,204,0.15)'];
+
+  for (let i = 0; i < 12; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'wall-shatter-piece';
+    const w = 40 + Math.random() * 60;
+    const h = 30 + Math.random() * 50;
+    piece.style.width = w + 'px';
+    piece.style.height = h + 'px';
+    piece.style.left = (Math.random() * rect.width - w/2 + rect.left - wrap.getBoundingClientRect().left) + 'px';
+    piece.style.top = (Math.random() * rect.height - h/2 + rect.top - wrap.getBoundingClientRect().top) + 'px';
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.setProperty('--tx', (Math.random()-0.5)*300 + 'px');
+    piece.style.setProperty('--ty', (Math.random()-0.5)*300 + 'px');
+    piece.style.animationDelay = (Math.random()*0.2) + 's';
+    piece.style.animationDuration = (0.4 + Math.random()*0.3) + 's';
+    wrap.appendChild(piece);
+  }
+
+  // Fade out wall
+  wall.style.transition = 'opacity 0.3s ease';
+  wall.style.opacity = '0';
+
+  setTimeout(() => {
+    // Remove pieces
+    wrap.querySelectorAll('.wall-shatter-piece').forEach(p => p.remove());
+    showReveal();
+  }, 900);
+}
+
+// ===== Reveal =====
+function showReveal() {
+  const b = boundaries[currentBoundary];
+  document.getElementById('revealIcon').textContent = b.revealIcon;
+  document.getElementById('revealTitle').innerHTML = b.revealTitle.replace('\n','<br>');
+  document.getElementById('revealDesc').textContent = b.revealDesc;
+  document.getElementById('revealTags').innerHTML = b.tags.map(t => `<span>${t}</span>`).join('');
+  document.getElementById('revealBtn').textContent = currentBoundary < boundaries.length - 1 ? '继续击碎' : '查看结果';
+  showScreen('s-reveal');
+}
+
+function nextReveal() {
+  currentBoundary++;
+  if (currentBoundary >= boundaries.length) {
+    showScreen('s-result');
+  } else {
+    hitCount = 0;
+    loadBoundary();
+    showScreen('s-break');
+  }
+}
+
+// ===== Result -> CTA =====
+function goCTA() {
+  // Try to load QR code image
+  const qrDiv = document.getElementById('ctaQr');
+  // Check if qr-code.jpg exists
+  const img = new Image();
+  img.onload = function() {
+    qrDiv.innerHTML = '';
+    qrDiv.appendChild(img);
+  };
+  img.onerror = function() {
+    qrDiv.innerHTML = '<span style="font-size:11px;color:#ccc;">扫码报名</span>';
+  };
+  img.src = 'images/qr-code.jpg';
+  showScreen('s-cta');
+}
+
+// ===== Resize crack canvas =====
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('crackCanvas');
+  if (canvas) {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+});
+</script>
+</body>
+</html>

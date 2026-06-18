@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>内容创作，从这里开始 · Canva可画</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --cyan: #00C4CC;
+  --purple: #7B2FF7;
+  --dark: #08081a;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; font-family:'Noto Sans SC',sans-serif; background:var(--dark); color:#fff; }
+
+.screen {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding: 40px 24px;
+  transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  z-index:1; opacity:0; transform:scale(0.96); pointer-events:none;
+}
+.screen.active { opacity:1; transform:scale(1); pointer-events:auto; z-index:10; }
+
+/* ===== Decorative ===== */
+.orb { position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(80px); }
+
+/* ===== Loading ===== */
+#s-loading { background:var(--dark); z-index:100; }
+.loading-logo { width:50vw; max-width:220px; margin-bottom:32px; }
+.loading-bar-wrap { width:200px; height:3px; background:rgba(255,255,255,0.08); border-radius:2px; overflow:hidden; }
+.loading-bar { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--purple)); border-radius:2px; transition:width 0.3s ease; }
+.loading-text { margin-top:16px; font-size:11px; color:rgba(255,255,255,0.3); letter-spacing:2px; }
+
+/* ===== Hero ===== */
+#s-hero { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.hero-logo { width:60vw; max-width:280px; margin-bottom:28px; border-radius:16px; box-shadow:0 20px60px rgba(0,196,204,0.15); }
+.hero-mission { font-size:12px; color:var(--cyan); letter-spacing:3px; margin-bottom:12px; }
+.hero-title { font-size:9vw; font-weight:900; text-align:center; line-height:1.15; margin-bottom:12px; }
+.hero-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-sub { font-size:13px; color:rgba(255,255,255,0.45); text-align:center; line-height:1.8; max-width:320px; margin-bottom:36px; }
+.hero-stats { display:flex; gap:20px; margin-bottom:36px; }
+.hero-stat { text-align:center; }
+.hero-stat .n { font-size:20px; font-weight:900; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-stat .l { font-size:9px; color:rgba(255,255,255,0.35); margin-top:4px; letter-spacing:1px; }
+.hero-btn {
+  padding:16px 56px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:15px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px30px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease; animation:bounce 2.5s ease-in-out infinite;
+}
+.hero-btn:active { transform:scale(0.96); }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+/* ===== Pain Points ===== */
+#s-pain { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.pain-header { text-align:center; margin-bottom:28px; width:100%; max-width:380px; }
+.pain-label { font-size:11px; color:var(--cyan); letter-spacing:3px; margin-bottom:8px; }
+.pain-title { font-size:7vw; font-weight:900; line-height:1.2; }
+.pain-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.pain-sub { font-size:13px; color:rgba(255,255,255,0.4); margin-top:8px; }
+.pain-cards { width:100%; max-width:380px; display:flex; flex-direction:column; gap:12px; }
+.pain-card {
+  background:var(--card-bg); border:1.5px solid var(--card-border);
+  border-radius:20px; padding:18px 20px; cursor:pointer;
+  display:flex; align-items:center; gap:14px;
+  transition:all 0.4s cubic-bezier(0.4,0,0.2,1); opacity:0; transform:translateY(20px);
+}
+.pain-card.show { opacity:1; transform:translateY(0); }
+.pain-card:active { transform:scale(0.97); }
+.pain-card.tapped { border-color:rgba(0,196,204,0.3); background:rgba(0,196,204,0.06); }
+.pain-emoji { font-size:32px; flex-shrink:0; }
+.pain-text h3 { font-size:15px; font-weight:700; margin-bottom:3px; }
+.pain-text p { font-size:11px; color:rgba(255,255,255,0.4); line-height:1.5; }
+.pain-arrow { margin-left:auto; font-size:18px; color:rgba(255,255,255,0.2); transition:all 0.3s; }
+.pain-card.tapped .pain-arrow { color:var(--cyan); transform:translateX(4px); }
+.pain-skip { margin-top:20px; font-size:11px; color:rgba(255,255,255,0.25); cursor:pointer; letter-spacing:1px; }
+
+/* ===== AI Input ===== */
+#s-input { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.input-header { text-align:center; margin-bottom:24px; width:100%; max-width:380px; }
+.input-label { font-size:11px; color:var(--cyan); letter-spacing:3px; margin-bottom:8px; }
+.input-title { font-size:7vw; font-weight:900; line-height:1.2; }
+.input-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.input-sub { font-size:13px; color:rgba(255,255,255,0.4); margin-top:8px; }
+.input-bubble {
+  background:var(--card-bg); border:1.5px solid var(--card-border);
+  border-radius:20px; padding:16px 20px; width:100%; max-width:380px; margin-bottom:20px;
+  font-size:14px; color:rgba(255,255,255,0.6); line-height:1.6; position:relative;
+}
+.input-bubble::before {
+  content:''; position:absolute; top:-8px; left:24px;
+  width:16px; height:16px; background:var(--card-bg); border-left:1.5px solid var(--card-border); border-top:1.5px solid var(--card-border);
+  transform:rotate(45deg);
+}
+.suggestion-wrap { width:100%; max-width:380px; display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.suggestion-btn {
+  background:var(--card-bg); border:1.5px solid var(--card-border);
+  border-radius:14px; padding:14px 18px; text-align:left; cursor:pointer;
+  font-size:13px; color:#fff; transition:all 0.3s ease; position:relative; overflow:hidden;
+}
+.suggestion-btn::before {
+  content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,196,204,0.1),rgba(123,47,247,0.1)); opacity:0; transition:opacity 0.3s;
+}
+.suggestion-btn:hover::before, .suggestion-btn:active::before { opacity:1; }
+.suggestion-btn:active { transform:scale(0.98); }
+.suggestion-btn .sug-tag { font-size:10px; color:var(--cyan); margin-right:6px; }
+
+/* ===== AI Generating ===== */
+#s-generate { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.gen-status { text-align:center; margin-bottom:20px; }
+.gen-status-text { font-size:13px; color:var(--cyan); letter-spacing:2px; margin-bottom:8px; }
+.gen-status-dots { display:flex; gap:6px; justify-content:center; }
+.gen-dot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.15); transition:all 0.3s; }
+.gen-dot.active { background:var(--cyan); box-shadow:0 0 8px rgba(0,196,204,0.5); }
+.gen-phone {
+  width:100%; max-width:300px; aspect-ratio:9/16; border-radius:32px;
+  border:8px solid #1a1a2e; box-shadow:0 20px60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+  overflow:hidden; position:relative; background:#111;
+}
+#gen-canvas { width:100%; height:100%; display:block; }
+.gen-overlay {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; background:rgba(5,5,16,0.7);
+  transition:opacity 0.5s ease;
+}
+.gen-overlay.hidden { opacity:0; pointer-events:none; }
+.gen-spinner {
+  width:36px; height:36px; border-radius:50%;
+  border:3px solid rgba(255,255,255,0.1); border-top-color:var(--cyan);
+  animation:spin 0.8s linear infinite; margin-bottom:12px;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.gen-msg { font-size:12px; color:rgba(255,255,255,0.5); letter-spacing:2px; }
+.gen-badge {
+  position:absolute; top:12px; right:12px; padding:4px 10px; border-radius:8px;
+  background:rgba(0,196,204,0.15); border:1px solid rgba(0,196,204,0.25);
+  font-size:9px; color:var(--cyan); letter-spacing:1px; opacity:0; transition:opacity 0.5s;
+}
+.gen-badge.show { opacity:1; }
+.gen-done { text-align:center; margin-top:20px; opacity:0; transform:translateY(10px); transition:all 0.5s ease; }
+.gen-done.show { opacity:1; transform:translateY(0); }
+.gen-done h3 { font-size:18px; font-weight:900; margin-bottom:4px; }
+.gen-done h3 em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.gen-done p { font-size:11px; color:rgba(255,255,255,0.4); }
+.gen-next-btn {
+  margin-top:16px; padding:14px 48px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:14px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px25px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease;
+}
+.gen-next-btn:active { transform:scale(0.96); }
+
+/* ===== Values ===== */
+#s-values { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.values-header { text-align:center; margin-bottom:24px; }
+.values-label { font-size:11px; color:var(--cyan); letter-spacing:3px; margin-bottom:8px; }
+.values-title { font-size:7vw; font-weight:900; }
+.values-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.values-sub { font-size:13px; color:rgba(255,255,255,0.4); margin-top:8px; }
+.values-cards { width:100%; max-width:380px; display:flex; flex-direction:column; gap:12px; }
+.value-card {
+  background:var(--card-bg); border:1.5px solid var(--card-border);
+  border-radius:20px; padding:20px; display:flex; gap:16px;
+  transition:all 0.4s ease; opacity:0; transform:translateX(-20px);
+}
+.value-card.show { opacity:1; transform:translateX(0); }
+.value-icon {
+  width:48px; height:48px; border-radius:14px;
+  background:linear-gradient(135deg,rgba(0,196,204,0.15),rgba(123,47,247,0.15));
+  border:1px solid rgba(0,196,204,0.2); display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+.value-text h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
+.value-text p { font-size:12px; color:rgba(255,255,255,0.4); line-height:1.6; }
+.value-tag { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:10px; background:rgba(0,196,204,0.1); border:1px solid rgba(0,196,204,0.15); font-size:10px; color:var(--cyan); }
+.values-btn {
+  margin-top:24px; padding:14px 48px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:14px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px25px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease; opacity:0; transform:translateY(10px);
+}
+.values-btn.show { opacity:1; transform:translateY(0); }
+.values-btn:active { transform:scale(0.96); }
+
+/* ===== Compare ===== */
+#s-compare { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.compare-header { text-align:center; margin-bottom:28px; }
+.compare-label { font-size:11px; color:var(--cyan); letter-spacing:3px; margin-bottom:8px; }
+.compare-title { font-size:8vw; font-weight:900; }
+.compare-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.compare-sub { font-size:13px; color:rgba(255,255,255,0.45); margin-top:8px; }
+.compare-cards { display:flex; gap:12px; width:100%; max-width:380px; margin-bottom:28px; }
+.compare-card {
+  flex:1; padding:20px 14px; border-radius:20px; text-align:center;
+  transition:all 0.5s ease;
+}
+.compare-card.trad { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); }
+.compare-card.canva { background:linear-gradient(135deg,rgba(0,196,204,0.1),rgba(123,47,247,0.1)); border:1px solid rgba(0,196,204,0.2); }
+.compare-card .tag { font-size:9px; letter-spacing:1px; padding:3px 10px; border-radius:6px; margin-bottom:12px; display:inline-block; }
+.compare-card.trad .tag { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
+.compare-card.canva .tag { background:rgba(0,196,204,0.15); color:var(--cyan); }
+.compare-card .time { font-size:28px; font-weight:900; color:#fff; margin-bottom:4px; }
+.compare-card.canva .time { background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.compare-card .desc { font-size:10px; color:rgba(255,255,255,0.35); line-height:1.6; }
+.compare-vs { font-size:14px; color:rgba(255,255,255,0.2); font-weight:700; align-self:center; }
+.compare-result { width:100%; max-width:380px; background:var(--card-bg); border:1px solid var(--card-border); border-radius:20px; padding:18px; text-align:center; margin-bottom:24px; }
+.compare-result .speed { font-size:32px; font-weight:900; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:4px; }
+.compare-result .speed-label { font-size:11px; color:rgba(255,255,255,0.4); }
+.compare-btn {
+  padding:14px 48px; border-radius:50px; border:none;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:14px; font-weight:700; letter-spacing:2px;
+  box-shadow:0 8px25px rgba(0,196,204,0.3); cursor:pointer;
+  transition:all 0.3s ease;
+}
+.compare-btn:active { transform:scale(0.96); }
+
+/* ===== CTA ===== */
+#s-cta { background:linear-gradient(160deg,#050510 0%,#0a0a20 50%,#0f0a2e 100%); }
+.cta-logo { width:40vw; max-width:180px; margin-bottom:20px; filter:drop-shadow(0 4px20px rgba(0,196,204,0.2)); }
+.cta-title { font-size:8vw; font-weight:900; text-align:center; line-height:1.15; margin-bottom:8px; }
+.cta-title em { font-style:normal; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.cta-sub { font-size:13px; color:rgba(255,255,255,0.45); text-align:center; line-height:1.7; max-width:340px; margin-bottom:24px; }
+.cta-nums { display:flex; gap:16px; margin-bottom:24px; }
+.cta-num { text-align:center; }
+.cta-num .v { font-size:18px; font-weight:900; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.cta-num .l { font-size:9px; color:rgba(255,255,255,0.35); margin-top:3px; letter-spacing:1px; }
+.cta-qr {
+  width:130px; height:130px; background:#fff; border-radius:16px;
+  margin:0 auto 12px; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px30px rgba(0,196,204,0.15); overflow:hidden;
+}
+.cta-qr img { width:90%; height:90%; object-fit:contain; }
+.cta-qr-text { font-size:10px; color:rgba(255,255,255,0.35); margin-bottom:20px; }
+.cta-btn {
+  display:inline-block; padding:15px 48px; border-radius:50px;
+  background:linear-gradient(135deg,var(--cyan),var(--purple));
+  color:#fff; font-size:15px; font-weight:700; letter-spacing:2px;
+  text-decoration:none; box-shadow:0 8px30px rgba(0,196,204,0.3);
+  transition:all 0.3s ease;
+}
+.cta-btn:active { transform:scale(0.96); }
+.cta-footer { margin-top:16px; font-size:10px; color:rgba(255,255,255,0.2); letter-spacing:1px; }
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="orb" style="width:300px;height:300px;background:rgba(0,196,204,0.06);top:-80px;right:-80px;"></div>
+<div class="orb" style="width:250px;height:250px;background:rgba(123,47,247,0.05);bottom:-60px;left:-60px;"></div>
+
+<!-- ========== Screen 0: Loading ========== -->
+<div class="screen active" id="s-loading">
+  <img src="images/logo-animated.gif" class="loading-logo" alt="Canva可画">
+  <div class="loading-bar-wrap"><div class="loading-bar" id="loadBar"></div></div>
+  <p class="loading-text" id="loadText">正在加载创作引擎...</p>
+</div>
+
+<!-- ========== Screen 1: Hero ========== -->
+<div class="screen" id="s-hero">
+  <img src="images/logo-gradient-hero.png" class="hero-logo" alt="Canva可画">
+  <p class="hero-mission">EMPower THE WORLD TO DESIGN</p>
+  <h1 class="hero-title">内容创作<br><em>从这里开始</em></h1>
+  <p class="hero-sub">赋予世界设计的力量<br>让每一个人都能轻松创作</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="n">20万+</div><div class="l">设计模板</div></div>
+    <div class="hero-stat"><div class="n">9000万+</div><div class="l">视觉素材</div></div>
+    <div class="hero-stat"><div class="n">190+</div><div class="l">国家地区</div></div>
+  </div>
+  <button class="hero-btn" onclick="goPain()">开启创作之旅</button>
+</div>
+
+<!-- ========== Screen 2: Pain Points ========== -->
+<div class="screen" id="s-pain">
+  <div class="pain-header">
+    <p class="pain-label">CREATOR'S DILEMMA</p>
+    <h2 class="pain-title">创作前，你是否也<em>遇到过</em>这些问题？</h2>
+    <p class="pain-sub">点击你最有共鸣的困扰</p>
+  </div>
+  <div class="pain-cards">
+    <div class="pain-card" onclick="tapPain(this,0)" data-delay="0">
+      <div class="pain-emoji">🤔</div>
+      <div class="pain-text"><h3>没有灵感，不知道从何下手</h3><p>面对空白画布，脑子里一片空白</p></div>
+      <div class="pain-arrow">›</div>
+    </div>
+    <div class="pain-card" onclick="tapPain(this,1)" data-delay="1">
+      <div class="pain-emoji">🎨</div>
+      <div class="pain-text"><h3>不懂设计，PS太难学了</h3><p>想做出好看的内容，却被工具门槛劝退</p></div>
+      <div class="pain-arrow">›</div>
+    </div>
+    <div class="pain-card" onclick="tapPain(this,2)" data-delay="2">
+      <div class="pain-emoji">⏰</div>
+      <div class="pain-text"><h3>时间紧迫，明天就要发布了</h3><p>从零开始设计，根本来不及</p></div>
+      <div class="pain-arrow">›</div>
+    </div>
+  </div>
+  <p class="pain-skip" onclick="goInput()">跳过，直接体验 ›</p>
+</div>
+
+<!-- ========== Screen 3: AI Input ========== -->
+<div class="screen" id="s-input">
+  <div class="input-header">
+    <p class="input-label">AI POWERED</p>
+    <h2 class="input-title">在Canva可画<br><em>只需一句话</em></h2>
+    <p class="input-sub">选择或输入你的创作需求</p>
+  </div>
+  <div class="input-bubble" id="inputBubble">💬 我想做一张小红书封面，关于夏日旅行...</div>
+  <div class="suggestion-wrap">
+    <button class="suggestion-btn" onclick="startGenerate('帮我做一个夏日旅行小红书封面')">
+      <span class="sug-tag">小红书</span>帮我做一个夏日旅行小红书封面
+    </button>
+    <button class="suggestion-btn" onclick="startGenerate('设计一张社团招新的宣传海报')">
+      <span class="sug-tag">海报</span>设计一张社团招新的宣传海报
+    </button>
+    <button class="suggestion-btn" onclick="startGenerate('做一个简约风格的毕业答辩PPT封面')">
+      <span class="sug-tag">PPT</span>做一个简约风格的毕业答辩PPT封面
+    </button>
+    <button class="suggestion-btn" onclick="startGenerate('为我的穿搭账号设计一个头像')">
+      <span class="sug-tag">头像</span>为我的穿搭账号设计一个头像
+    </button>
+  </div>
+</div>
+
+<!-- ========== Screen 4: AI Generating ========== -->
+<div class="screen" id="s-generate">
+  <div class="gen-status">
+    <p class="gen-status-text" id="genStatus">AI正在理解你的需求...</p>
+    <div class="gen-status-dots" id="genDots">
+      <div class="gen-dot active"></div><div class="gen-dot"></div><div class="gen-dot"></div><div class="gen-dot"></div><div class="gen-dot"></div>
+    </div>
+  </div>
+  <div class="gen-phone">
+    <canvas id="gen-canvas" width="540" height="960"></canvas>
+    <div class="gen-overlay" id="genOverlay">
+      <div class="gen-spinner"></div>
+      <p class="gen-msg" id="genMsg">AI创作中...</p>
+    </div>
+    <div class="gen-badge" id="genBadge">3秒完成 ✓</div>
+  </div>
+  <div class="gen-done" id="genDone">
+    <h3>你的设计已<em>生成完毕</em></h3>
+    <p>传统方式需4小时 · Canva仅需3分钟</p>
+    <button class="gen-next-btn" onclick="goValues()">了解更多能力</button>
+  </div>
+</div>
+
+<!-- ========== Screen 5: Values ========== -->
+<div class="screen" id="s-values">
+  <div class="values-header">
+    <p class="values-label">WHY CANVA</p>
+    <h2 class="values-title">四大核心<em>创作能力</em></h2>
+    <p class="values-sub">让内容创作，真正零门槛</p>
+  </div>
+  <div class="values-cards">
+    <div class="value-card" data-delay="0">
+      <div class="value-icon">🌱</div>
+      <div class="value-text">
+        <h3>小白必备 · 零门槛开始</h3>
+        <p>无需专业设计背景，拖拽式操作，一句话即可生成封面、海报、PPT初稿</p>
+        <span class="value-tag">新手友好</span>
+      </div>
+    </div>
+    <div class="value-card" data-delay="1">
+      <div class="value-icon">💬</div>
+      <div class="value-text">
+        <h3>对话式AI · 内容随心改</h3>
+        <p>用自然语言描述需求，AI实时生成设计，边聊边改，快速迭代到满意</p>
+        <span class="value-tag">AI驱动</span>
+      </div>
+    </div>
+    <div class="value-card" data-delay="2">
+      <div class="value-icon">📚</div>
+      <div class="value-text">
+        <h3>海量模板 · 灵感不枯竭</h3>
+        <p>20万+多场景模板、9000万+视觉素材、5000+字体，让创作持续输出</p>
+        <span class="value-tag">资源丰富</span>
+      </div>
+    </div>
+    <div class="value-card" data-delay="3">
+      <div class="value-icon">🎯</div>
+      <div class="value-text">
+        <h3>一站式体验 · 全程不切换</h3>
+        <p>灵感获取、AI生成、编辑排版、多尺寸适配，一个平台全部搞定</p>
+        <span class="value-tag">高效整合</span>
+      </div>
+    </div>
+  </div>
+  <button class="values-btn" id="valuesBtn" onclick="goCompare()">查看效率对比</button>
+</div>
+
+<!-- ========== Screen 6: Compare ========== -->
+<div class="screen" id="s-compare">
+  <div class="compare-header">
+    <p class="compare-label">EFFICIENCY</p>
+    <h2 class="compare-title">效率提升<em>80倍</em></h2>
+    <p class="compare-sub">同样的设计效果，完全不同的耗时</p>
+  </div>
+  <div class="compare-cards">
+    <div class="compare-card trad">
+      <div class="tag">传统方式</div>
+      <div class="time">4小时</div>
+      <div class="desc">找灵感<br>学软件<br>从零设计<br>反复修改</div>
+    </div>
+    <div class="compare-vs">VS</div>
+    <div class="compare-card canva">
+      <div class="tag">Canva可画</div>
+      <div class="time">3分钟</div>
+      <div class="desc">选模板<br>AI生成<br>拖拽修改<br>一键导出</div>
+    </div>
+  </div>
+  <div class="compare-result">
+    <div class="speed">80×</div>
+    <div class="speed-label">效率提升倍数</div>
+  </div>
+  <button class="compare-btn" onclick="goCTA()">免费开始创作</button>
+</div>
+
+<!-- ========== Screen 7: CTA ========== -->
+<div class="screen" id="s-cta">
+  <img src="images/logo-gradient-hero.png" class="cta-logo" alt="Canva可画">
+  <h2 class="cta-title">开启你的<br><em>设计之旅</em></h2>
+  <p class="cta-sub">全球创作者的选择<br>Empower the world to design</p>
+  <div class="cta-nums">
+    <div class="cta-num"><div class="v">20万+</div><div class="l">设计模板</div></div>
+    <div class="cta-num"><div class="v">300亿</div><div class="l">全球创作量</div></div>
+    <div class="cta-num"><div class="v">免费</div><div class="l">开始创作</div></div>
+  </div>
+  <div class="cta-qr">
+    <img src="images/qr-code.jpg" alt="扫码领取福利">
+  </div>
+  <p class="cta-qr-text">扫码加入命题讨论群 · 领取免费会员</p>
+  <a href="https://www.canva.cn" target="_blank" class="cta-btn">立即免费创作</a>
+  <p class="cta-footer">Canva可画 · 第18届大广赛命题</p>
+</div>
+
+<script>
+// ===== Navigation =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== Loading =====
+let loadProgress = 0;
+function doLoading() {
+  const bar = document.getElementById('loadBar');
+  const texts = ['正在加载创作引擎...','连接AI设计大脑...','准备海量模板库...','即将开启创作之旅...'];
+  const textEl = document.getElementById('loadText');
+  let step = 0;
+  const interval = setInterval(() => {
+    loadProgress += Math.random() * 25 + 10;
+    if (loadProgress > 100) loadProgress = 100;
+    bar.style.width = loadProgress + '%';
+    if (step < texts.length && loadProgress > (step + 1) * 22) {
+      textEl.textContent = texts[step];
+      step++;
+    }
+    if (loadProgress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => showScreen('s-hero'), 400);
+    }
+  }, 350);
+}
+
+// ===== Pain Points =====
+function goPain() {
+  showScreen('s-pain');
+  setTimeout(() => {
+    document.querySelectorAll('.pain-card').forEach((c, i) => {
+      setTimeout(() => c.classList.add('show'), i * 150);
+    });
+  }, 300);
+}
+
+let painTaps = 0;
+function tapPain(el, idx) {
+  el.classList.add('tapped');
+  painTaps++;
+  setTimeout(() => {
+    if (painTaps >= 1) goInput();
+  }, 500);
+}
+
+// ===== AI Input =====
+function goInput() {
+  showScreen('s-input');
+}
+
+let currentRequest = '';
+function startGenerate(text) {
+  currentRequest = text;
+  document.getElementById('inputBubble').textContent = '💬 ' + text;
+  showScreen('s-generate');
+  setTimeout(() => runGeneration(), 400);
+}
+
+// ===== AI Generation Animation =====
+const genSteps = [
+  { msg: '分析创作需求...', dot: 0 },
+  { msg: '匹配最佳模板...', dot: 1 },
+  { msg: 'AI智能构图...', dot: 2 },
+  { msg: '生成文字内容...', dot: 3 },
+  { msg: '优化视觉细节...', dot: 4 },
+];
+
+function runGeneration() {
+  const canvas = document.getElementById('gen-canvas');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Determine style based on request
+  const isXiaohongshu = currentRequest.includes('小红书');
+  const isPoster = currentRequest.includes('海报');
+  const isPPT = currentRequest.includes('PPT');
+  const isAvatar = currentRequest.includes('头像');
+
+  // Color schemes
+  const schemes = {
+    xiaohongshu: { bg1: '#FFE4EC', bg2: '#FFF0F5', accent: '#FF6B9D', text: '#333', sub: '#666' },
+    poster: { bg1: '#E3F2FD', bg2: '#BBDEFB', accent: '#1976D2', text: '#1a1a2e', sub: '#555' },
+    ppt: { bg1: '#f5f5f5', bg2: '#e0e0e0', accent: '#00C4CC', text: '#1a1a2e', sub: '#555' },
+    avatar: { bg1: '#E8F5E9', bg2: '#C8E6C9', accent: '#4CAF50', text: '#1b5e20', sub: '#555' },
+  };
+  const s = isXiaohongshu ? schemes.xiaohongshu : isPoster ? schemes.poster : isPPT ? schemes.ppt : schemes.avatar;
+
+  const statusEl = document.getElementById('genStatus');
+  const dots = document.querySelectorAll('.gen-dot');
+  const overlay = document.getElementById('genOverlay');
+  const genMsg = document.getElementById('genMsg');
+  const badge = document.getElementById('genBadge');
+  const done = document.getElementById('genDone');
+
+  overlay.classList.remove('hidden');
+  badge.classList.remove('show');
+  done.classList.remove('show');
+
+  let stepIdx = 0;
+
+  function nextStep() {
+    if (stepIdx >= genSteps.length) {
+      finishGen();
+      return;
+    }
+    const step = genSteps[stepIdx];
+    statusEl.textContent = step.msg;
+    genMsg.textContent = step.msg;
+    dots.forEach((d, i) => d.classList.toggle('active', i <= step.dot));
+    drawGenStep(ctx, w, h, s, stepIdx);
+    stepIdx++;
+    setTimeout(nextStep, 650);
+  }
+
+  setTimeout(nextStep, 300);
+
+  function finishGen() {
+    overlay.classList.add('hidden');
+    badge.classList.add('show');
+    done.classList.add('show');
+    statusEl.textContent = '生成完毕！';
+    dots.forEach(d => d.classList.add('active'));
+    // Final polish animation
+    drawFinalPolish(ctx, w, h, s);
+  }
+}
+
+function drawGenStep(ctx, w, h, s, step) {
+  if (step === 0) {
+    // Background sweep
+    const grd = ctx.createLinearGradient(0, 0, w, h);
+    grd.addColorStop(0, s.bg1);
+    grd.addColorStop(1, s.bg2);
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, w, h);
+  }
+  if (step === 1) {
+    // Template structure
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    roundRect(ctx, 30, 200, w - 60, 300, 16);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    roundRect(ctx, 30, 520, w - 60, 120, 12);
+    ctx.fill();
+  }
+  if (step === 2) {
+    // Decorative shapes
+    ctx.globalAlpha = 0.15;
+    ctx.beginPath();
+    ctx.ellipse(w * 0.75, h * 0.25, 100, 80, -0.3, 0, Math.PI * 2);
+    ctx.fillStyle = s.accent;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(w * 0.2, h * 0.75, 70, 60, 0.5, 0, Math.PI * 2);
+    ctx.fillStyle = s.accent;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  if (step === 3) {
+    // Title text
+    ctx.fillStyle = s.text;
+    ctx.font = 'bold 38px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    const title = currentRequest.includes('小红书') ? '夏日旅行攻略' :
+                  currentRequest.includes('海报') ? '社团招新' :
+                  currentRequest.includes('PPT') ? '毕业答辩' : '我的穿搭日记';
+    ctx.fillText(title, w / 2, 320);
+
+    // Subtitle
+    ctx.fillStyle = s.sub;
+    ctx.font = '20px "Noto Sans SC", sans-serif';
+    ctx.fillText('Canva可画 · 一键生成', w / 2, 360);
+  }
+  if (step === 4) {
+    // Tags
+    const tags = currentRequest.includes('小红书') ? ['#旅行', '#夏日', '#攻略'] :
+                 currentRequest.includes('海报') ? ['#招新', '#社团', '#校园'] :
+                 currentRequest.includes('PPT') ? ['#答辩', '#毕业', '#学术'] : ['#穿搭', '#时尚', '#日常'];
+    let tx = w / 2 - (tags.length * 80 - 20) / 2;
+    tags.forEach(tag => {
+      ctx.fillStyle = s.accent + '25';
+      roundRect(ctx, tx, 660, 70, 32, 16);
+      ctx.fill();
+      ctx.fillStyle = s.accent;
+      ctx.font = 'bold 13px "Noto Sans SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(tag, tx + 35, 682);
+      tx += 80;
+    });
+
+    // Canva watermark
+    ctx.fillStyle = s.sub + '80';
+    ctx.font = '14px "Noto Sans SC", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Designed with Canva可画', w / 2, h - 50);
+  }
+}
+
+function drawFinalPolish(ctx, w, h, s) {
+  // Add a subtle shimmer effect by drawing a gradient overlay
+  const shimmer = ctx.createLinearGradient(-100, 0, w + 100, h);
+  shimmer.addColorStop(0, 'rgba(255,255,255,0)');
+  shimmer.addColorStop(0.5, 'rgba(255,255,255,0.08)');
+  shimmer.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = shimmer;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ===== Values =====
+function goValues() {
+  showScreen('s-values');
+  setTimeout(() => {
+    document.querySelectorAll('.value-card').forEach((c, i) => {
+      setTimeout(() => c.classList.add('show'), i * 200);
+    });
+    setTimeout(() => document.getElementById('valuesBtn').classList.add('show'), 1000);
+  }, 300);
+}
+
+// ===== Compare =====
+function goCompare() {
+  showScreen('s-compare');
+}
+
+// ===== CTA =====
+function goCTA() {
+  showScreen('s-cta');
+}
+
+// ===== Init =====
+window.addEventListener('DOMContentLoaded', doLoading);
+</script>
+</body>
+</html>

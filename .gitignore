@@ -1,0 +1,24 @@
+# 临时文件
+_temp_*
+_check_*
+_server.js
+
+# Python脚本
+*.py
+
+# 压缩包
+*.zip
+
+# 临时图片帧
+_vid/
+_video_frames/
+_video_frames_s11/
+test_frame.jpg
+
+# IDE
+.vscode/
+.idea/
+
+# 系统
+.DS_Store
+Thumbs.db

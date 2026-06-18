@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>遇见你的MOLLY · 20周年</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&display=swap');
+
+:root {
+  --pop-red: #E60012;
+  --pop-pink: #FF6B9D;
+  --pop-yellow: #FFD700;
+  --pop-blue: #00B4D8;
+  --pop-purple: #9B5DE5;
+  --dark: #1a1a2e;
+  --light: #f8f9fa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; font-family: 'Noto Sans SC', sans-serif; background: var(--dark); color: var(--light); }
+
+.swiper { width: 100%; height: 100vh; }
+.swiper-slide { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* ===== Loading ===== */
+#loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.8s ease;
+}
+#loading-screen.hidden { opacity: 0; pointer-events: none; }
+.loading-logo { width: 60vw; max-width: 280px; margin-bottom: 40px; animation: pulse 2s ease-in-out infinite; }
+.loading-bar-bg { width: 60vw; max-width: 260px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; overflow: hidden; }
+.loading-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--pop-red), var(--pop-pink)); border-radius: 2px; transition: width 0.3s ease; }
+.loading-text { margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.6); letter-spacing: 2px; }
+
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+/* ===== Particles Canvas ===== */
+.particles-canvas { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+
+/* ===== Screen 1: Home ===== */
+.screen-home { background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 40%, #2d1b4e 100%); }
+.home-content { position: relative; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 8vh; }
+.brand-logo { width: 35vw; max-width: 160px; margin-bottom: 2vh; filter: drop-shadow(0 4px 20px rgba(230,0,18,0.4)); }
+.molly-logo { width: 50vw; max-width: 220px; margin-bottom: 1vh; }
+.tagline { font-size: 14px; color: rgba(255,255,255,0.7); letter-spacing: 6px; margin-bottom: 2vh; }
+.title-main { font-size: 9vw; font-weight: 900; color: #fff; text-align: center; line-height: 1.2; text-shadow: 0 4px 30px rgba(230,0,18,0.3); margin-bottom: 2vh; }
+.title-main span { color: var(--pop-red); }
+.title-sub { font-size: 4vw; color: var(--pop-pink); font-weight: 300; letter-spacing: 4px; margin-bottom: 3vh; }
+
+.molly-showcase { position: relative; width: 70vw; height: 40vh; display: flex; align-items: center; justify-content: center; }
+.molly-3d { width: 55vw; max-width: 280px; height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.5)); transition: transform 0.3s ease; }
+.molly-ring { position: absolute; width: 80vw; max-width: 380px; height: 80vw; max-height: 380px; border: 1px solid rgba(255,255,255,0.08); border-radius: 50%; animation: spin 20s linear infinite; }
+.molly-ring::before { content:''; position: absolute; inset: 20px; border: 1px solid rgba(255,255,255,0.05); border-radius: 50%; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.start-btn {
+  margin-top: 3vh; padding: 14px 50px; background: linear-gradient(135deg, var(--pop-red), #ff3366);
+  border: none; border-radius: 50px; color: #fff; font-size: 16px; font-weight: 700; letter-spacing: 3px;
+  box-shadow: 0 8px 30px rgba(230,0,18,0.4); animation: bounce 2s ease-in-out infinite; cursor: pointer;
+}
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+.scroll-hint { position: absolute; bottom: 3vh; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; opacity: 0.6; }
+.scroll-hint span { font-size: 11px; letter-spacing: 2px; }
+.scroll-arrow { width: 20px; height: 20px; border-right: 2px solid rgba(255,255,255,0.6); border-bottom: 2px solid rgba(255,255,255,0.6); transform: rotate(45deg); animation: scrollDown 1.5s ease-in-out infinite; }
+@keyframes scrollDown { 0%{opacity:0;transform:rotate(45deg) translate(-5px,-5px)} 50%{opacity:1} 100%{opacity:0;transform:rotate(45deg) translate(5px,5px)} }
+
+/* ===== Screen 2: Timeline ===== */
+.screen-timeline { background: linear-gradient(180deg, #1a1a3e 0%, #16213e 100%); }
+.timeline-title { font-size: 7vw; font-weight: 900; color: #fff; text-align: center; margin-bottom: 1vh; }
+.timeline-title span { color: var(--pop-yellow); }
+.timeline-sub { font-size: 3.5vw; color: rgba(255,255,255,0.6); margin-bottom: 3vh; text-align: center; }
+
+.timeline-wrap { width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 2vh 5vw 0; gap: 2vh; }
+.timeline-visual { display: flex; align-items: center; justify-content: center; gap: 4vw; width: 100%; flex: 1; }
+.timeline-line { position: relative; width: 3px; height: 42vh; background: linear-gradient(180deg, var(--pop-red), var(--pop-pink), var(--pop-yellow), var(--pop-blue), var(--pop-purple)); border-radius: 2px; flex-shrink: 0; }
+.timeline-nodes { display: flex; flex-direction: column; justify-content: space-between; height: 42vh; }
+.timeline-node {
+  width: 48px; height: 48px; border-radius: 50%; background: var(--dark);
+  border: 3px solid; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; cursor: pointer;
+  transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.timeline-node.active { transform: scale(1.2); box-shadow: 0 0 20px currentColor; }
+.timeline-node:nth-child(1) { border-color: var(--pop-red); color: var(--pop-red); }
+.timeline-node:nth-child(2) { border-color: var(--pop-pink); color: var(--pop-pink); }
+.timeline-node:nth-child(3) { border-color: var(--pop-yellow); color: var(--pop-yellow); }
+.timeline-node:nth-child(4) { border-color: var(--pop-blue); color: var(--pop-blue); }
+.timeline-node:nth-child(5) { border-color: var(--pop-purple); color: var(--pop-purple); }
+.timeline-node.active:nth-child(1) { box-shadow: 0 0 20px var(--pop-red); color: #fff; background: var(--pop-red); }
+.timeline-node.active:nth-child(2) { box-shadow: 0 0 20px var(--pop-pink); color: #fff; background: var(--pop-pink); }
+.timeline-node.active:nth-child(3) { box-shadow: 0 0 20px var(--pop-yellow); color: #000; background: var(--pop-yellow); }
+.timeline-node.active:nth-child(4) { box-shadow: 0 0 20px var(--pop-blue); color: #fff; background: var(--pop-blue); }
+.timeline-node.active:nth-child(5) { box-shadow: 0 0 20px var(--pop-purple); color: #fff; background: var(--pop-purple); }
+
+.timeline-detail {
+  width: 100%; max-width: 400px; background: rgba(255,255,255,0.08); backdrop-filter: blur(10px);
+  border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.12);
+  opacity: 0; transform: translateY(20px); pointer-events: none; transition: all 0.4s ease;
+  flex-shrink: 0; margin-bottom: 2vh;
+}
+.timeline-detail.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.timeline-detail h3 { font-size: 18px; margin-bottom: 10px; }
+.timeline-detail p { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.8; }
+.timeline-detail img { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; margin-top: 12px; background: rgba(255,255,255,0.05); }
+
+/* ===== Screen 3: Quiz ===== */
+.screen-quiz { background: linear-gradient(180deg, #0f0f23 0%, #1a0a2e 100%); }
+.quiz-progress { position: absolute; top: 6vh; left: 10vw; right: 10vw; height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+.quiz-progress-bar { height: 100%; background: linear-gradient(90deg, var(--pop-red), var(--pop-pink)); border-radius: 2px; width: 33%; transition: width 0.4s ease; }
+.quiz-wrap { width: 85vw; max-width: 400px; position: relative; z-index: 2; }
+.quiz-question { font-size: 6vw; font-weight: 700; color: #fff; text-align: center; margin-bottom: 4vh; line-height: 1.4; }
+.quiz-options { display: flex; flex-direction: column; gap: 12px; }
+.quiz-option {
+  padding: 16px 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; color: rgba(255,255,255,0.9); font-size: 14px; cursor: pointer;
+  transition: all 0.3s ease; display: flex; align-items: center; gap: 12px;
+}
+.quiz-option::before { content: attr(data-label); width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: all 0.3s ease; }
+.quiz-option:hover, .quiz-option:active { background: rgba(230,0,18,0.15); border-color: var(--pop-red); transform: translateX(5px); }
+.quiz-option.selected::before { background: var(--pop-red); }
+
+/* ===== Screen 4: Result ===== */
+.screen-result { background: linear-gradient(180deg, #1a0a2e 0%, #0f0f23 100%); }
+.result-card {
+  width: 85vw; max-width: 380px; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+  backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.15);
+  padding: 30px 24px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.result-badge { font-size: 11px; color: var(--pop-pink); letter-spacing: 3px; margin-bottom: 12px; }
+.result-title { font-size: 8vw; font-weight: 900; color: #fff; margin-bottom: 16px; line-height: 1.2; }
+.result-img { width: 50vw; max-width: 200px; margin: 0 auto 16px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5)); }
+.result-desc { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 20px; }
+.result-traits { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.result-traits span { padding: 6px 14px; background: rgba(230,0,18,0.15); border: 1px solid rgba(230,0,18,0.3); border-radius: 20px; font-size: 12px; color: var(--pop-pink); }
+
+.save-btn {
+  padding: 14px 40px; background: linear-gradient(135deg, var(--pop-red), #ff3366);
+  border: none; border-radius: 50px; color: #fff; font-size: 15px; font-weight: 700;
+  box-shadow: 0 8px 25px rgba(230,0,18,0.4); cursor: pointer; margin-bottom: 10px;
+}
+.save-hint { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+/* ===== Screen 5: CTA ===== */
+.screen-cta { background: linear-gradient(180deg, #0a0a1a 0%, #1a0a1e 50%, #0f0f23 100%); position: relative; }
+.cta-content { text-align: center; padding: 0 6vw; position: relative; z-index: 2; width: 100%; max-width: 480px; }
+.cta-logo { width: 22vw; max-width: 110px; margin-bottom: 2vh; filter: drop-shadow(0 4px 20px rgba(230,0,18,0.3)); }
+.cta-title { font-size: 8vw; font-weight: 900; color: #fff; margin-bottom: 1vh; letter-spacing: 1px; }
+.cta-title span { color: var(--pop-red); }
+.cta-sub { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 3vh; line-height: 1.8; }
+
+/* Products Grid */
+.cta-products { display: flex; gap: 14px; justify-content: center; margin-bottom: 3vh; width: 100%; }
+.cta-product {
+  flex: 1; max-width: 140px; min-width: 90px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  border-radius: 20px; overflow: hidden;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.cta-product::before {
+  content: ''; position: absolute; inset: 0; border-radius: 20px;
+  padding: 1.5px; background: linear-gradient(135deg, rgba(230,0,18,0.4), rgba(255,107,157,0.2), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+.cta-product:active { transform: scale(0.96); }
+.cta-product-img-wrap {
+  width: 100%; aspect-ratio: 1; background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+  display: flex; align-items: center; justify-content: center; padding: 8px;
+  position: relative; overflow: hidden;
+}
+.cta-product-img-wrap::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+  background: linear-gradient(to top, rgba(26,10,30,0.6), transparent);
+  pointer-events: none;
+}
+.cta-product img { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform 0.4s ease; }
+.cta-product:hover img { transform: scale(1.08); }
+.cta-product-info { padding: 10px 8px 12px; text-align: center; }
+.cta-product-info .name { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.cta-product-info .tag { display: inline-block; font-size: 9px; color: var(--pop-pink); background: rgba(230,0,18,0.12); border: 1px solid rgba(230,0,18,0.2); padding: 2px 8px; border-radius: 10px; }
+
+/* Featured badge on first product */
+.cta-product:nth-child(1)::after {
+  content: 'HOT'; position: absolute; top: 8px; left: 8px;
+  background: linear-gradient(135deg, var(--pop-red), #ff3366); color: #fff;
+  font-size: 8px; font-weight: 900; padding: 3px 7px; border-radius: 6px;
+  letter-spacing: 1px; box-shadow: 0 4px 10px rgba(230,0,18,0.3);
+}
+
+/* QR Section */
+.qr-section { margin-bottom: 3vh; position: relative; }
+.qr-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(230,0,18,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.qr-wrap {
+  background: rgba(255,255,255,0.95); border-radius: 20px; padding: 14px;
+  width: 150px; margin: 0 auto; position: relative;
+  box-shadow: 0 10px 40px rgba(230,0,18,0.15), 0 0 0 1px rgba(255,255,255,0.1) inset;
+}
+.qr-wrap::before {
+  content: ''; position: absolute; inset: -3px; border-radius: 24px;
+  background: linear-gradient(135deg, var(--pop-red), var(--pop-pink), var(--pop-yellow));
+  z-index: -1; opacity: 0.4; filter: blur(8px);
+}
+.qr-inner {
+  width: 100%; aspect-ratio: 1;
+  background: linear-gradient(135deg, #f8f8f8, #ececec);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.qr-inner::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(0,0,0,0.02) 6px, rgba(0,0,0,0.02) 12px);
+}
+.qr-inner img { width: 55%; opacity: 0.15; position: relative; z-index: 1; }
+.qr-inner .qr-placeholder-text {
+  position: absolute; bottom: 8px; font-size: 10px; color: #bbb; font-weight: 700; letter-spacing: 1px;
+}
+.qr-text { font-size: 12px; color: #222; margin-top: 10px; font-weight: 800; letter-spacing: 2px; }
+
+.cta-btn {
+  display: inline-block; padding: 16px 50px;
+  background: linear-gradient(135deg, var(--pop-red), #ff3366);
+  border-radius: 50px; color: #fff; font-size: 16px; font-weight: 700;
+  text-decoration: none; box-shadow: 0 8px 30px rgba(230,0,18,0.4);
+  transition: all 0.3s ease; letter-spacing: 2px;
+}
+.cta-btn:active { transform: scale(0.96); box-shadow: 0 4px 15px rgba(230,0,18,0.3); }
+
+/* Decorative orbs for CTA */
+.cta-orb { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; filter: blur(60px); }
+.cta-orb-1 { width: 200px; height: 200px; background: rgba(230,0,18,0.15); top: 10%; left: -10%; }
+.cta-orb-2 { width: 180px; height: 180px; background: rgba(155,93,229,0.12); bottom: 20%; right: -10%; }
+.cta-orb-3 { width: 120px; height: 120px; background: rgba(255,107,157,0.1); top: 40%; right: 5%; }
+
+/* ===== Poster Modal ===== */
+#poster-modal { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+#poster-modal.show { display: flex; }
+#poster-canvas { width: 80vw; max-width: 340px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.poster-close { margin-top: 20px; padding: 12px 30px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 30px; color: #fff; font-size: 14px; cursor: pointer; }
+
+/* ===== Floating particles ===== */
+.bubble { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent); pointer-events: none; animation: floatUp linear infinite; }
+@keyframes floatUp { 0%{transform:translateY(100vh) scale(0); opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-20vh) scale(1); opacity:0} }
+
+/* ===== Animations ===== */
+.fade-in { animation: fadeIn 1s ease forwards; opacity: 0; }
+.slide-up { animation: slideUp 0.8s ease forwards; opacity: 0; transform: translateY(30px); }
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+.delay-4 { animation-delay: 0.8s; }
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-screen">
+  <img src="images/molly-logo.png" class="loading-logo" alt="MOLLY">
+  <div class="loading-bar-bg"><div class="loading-bar" id="loadBar"></div></div>
+  <div class="loading-text" id="loadText">正在加载MOLLY的世界...</div>
+</div>
+
+<!-- Swiper -->
+<div class="swiper mySwiper">
+  <div class="swiper-wrapper">
+
+    <!-- Slide 1: Home -->
+    <div class="swiper-slide screen-home">
+      <canvas class="particles-canvas" id="homeCanvas"></canvas>
+      <div class="home-content">
+        <img src="images/popmart-logo.png" class="brand-logo slide-up" alt="POP MART">
+        <img src="images/molly-logo.png" class="molly-logo slide-up delay-1" alt="MOLLY">
+        <p class="tagline slide-up delay-2">20TH ANNIVERSARY</p>
+        <h1 class="title-main slide-up delay-2">MOLLY与<br><span>她的20载</span></h1>
+        <p class="title-sub slide-up delay-3">遇见属于你的MOLLY</p>
+        <div class="molly-showcase slide-up delay-3">
+          <div class="molly-ring"></div>
+          <img src="images/angry-molly-01.png" class="molly-3d" id="heroMolly" alt="Angry Molly">
+        </div>
+        <button class="start-btn slide-up delay-4" onclick="swiper.slideTo(1)">开启时光之旅</button>
+      </div>
+      <div class="scroll-hint">
+        <span>向上滑动</span>
+        <div class="scroll-arrow"></div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Timeline -->
+    <div class="swiper-slide screen-timeline">
+      <canvas class="particles-canvas" id="timeCanvas"></canvas>
+      <h2 class="timeline-title">MOLLY<span>时光旅程</span></h2>
+      <p class="timeline-sub">点击年份，探索每个时代的MOLLY</p>
+      <div class="timeline-wrap">
+        <div class="timeline-visual">
+          <div class="timeline-line"></div>
+          <div class="timeline-nodes">
+            <div class="timeline-node" data-index="0">06</div>
+            <div class="timeline-node" data-index="1">07</div>
+            <div class="timeline-node" data-index="2">14</div>
+            <div class="timeline-node" data-index="3">24</div>
+            <div class="timeline-node" data-index="4">25</div>
+          </div>
+        </div>
+        <div class="timeline-detail" id="timelineDetail">
+          <h3 id="detailYear">2006</h3>
+          <p id="detailText">经典小画家MOLLY诞生</p>
+          <img id="detailImg" src="" alt="" style="display:none;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Quiz -->
+    <div class="swiper-slide screen-quiz">
+      <canvas class="particles-canvas" id="quizCanvas"></canvas>
+      <div class="quiz-progress"><div class="quiz-progress-bar" id="quizBar"></div></div>
+      <div class="quiz-wrap" id="quizWrap">
+        <div id="quizContent">
+          <h2 class="quiz-question" id="quizQ">当你面对生活中的压力时，你会选择？</h2>
+          <div class="quiz-options" id="quizOpts"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Result -->
+    <div class="swiper-slide screen-result">
+      <canvas class="particles-canvas" id="resultCanvas"></canvas>
+      <div class="result-card" id="resultCard">
+        <p class="result-badge">MOLLY人格测试</p>
+        <h2 class="result-title" id="resultTitle">你是<br>Angry Molly</h2>
+        <img src="images/angry-molly-01.png" class="result-img" id="resultImg" alt="">
+        <p class="result-desc" id="resultDesc">愤怒不是负面情绪，而是燃烧的生命力。你敢于真诚表达，对热爱的事物全情投入。</p>
+        <div class="result-traits" id="resultTraits"></div>
+        <button class="save-btn" onclick="generatePoster()">生成专属海报</button>
+        <p class="save-hint">长按保存分享朋友圈</p>
+      </div>
+    </div>
+
+    <!-- Slide 5: CTA -->
+    <div class="swiper-slide screen-cta">
+      <canvas class="particles-canvas" id="ctaCanvas"></canvas>
+      <div class="cta-orb cta-orb-1"></div>
+      <div class="cta-orb cta-orb-2"></div>
+      <div class="cta-orb cta-orb-3"></div>
+      <div class="cta-content">
+        <img src="images/popmart-logo.png" class="cta-logo" alt="POP MART">
+        <h2 class="cta-title">把<span>MOLLY</span>带回家</h2>
+        <p class="cta-sub">20周年限定系列现已登陆抽盒机</p>
+        <div class="cta-products">
+          <div class="cta-product">
+            <div class="cta-product-img-wrap"><img src="images/angry-molly-01.png" alt="Angry Molly"></div>
+            <div class="cta-product-info">
+              <div class="name">Angry Molly</div>
+              <div class="tag">20周年限定</div>
+            </div>
+          </div>
+          <div class="cta-product">
+            <div class="cta-product-img-wrap"><img src="images/molly-painter.jpg" alt="经典小画家"></div>
+            <div class="cta-product-info">
+              <div class="name">经典小画家</div>
+              <div class="tag">经典回归</div>
+            </div>
+          </div>
+          <div class="cta-product">
+            <div class="cta-product-img-wrap"><img src="images/angry-molly-03.png" alt="限定款"></div>
+            <div class="cta-product-info">
+              <div class="name">限定款</div>
+              <div class="tag">限量发售</div>
+            </div>
+          </div>
+        </div>
+        <div class="qr-section">
+          <div class="qr-glow"></div>
+          <div class="qr-wrap">
+            <div class="qr-inner">
+              <img src="images/popmart-logo.png" alt="">
+              <span class="qr-placeholder-text">小程序码</span>
+            </div>
+            <p class="qr-text">扫码进入抽盒机</p>
+          </div>
+        </div>
+        <a href="#" class="cta-btn" onclick="alert('请搜索「泡泡玛特抽盒机」微信小程序');return false;">立即前往抽盒机</a>
+        <p style="margin-top:16px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">泡泡玛特 POP MART · 创造潮流 传递美好</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Poster Modal -->
+<div id="poster-modal">
+  <canvas id="poster-canvas" width="750" height="1334"></canvas>
+  <button class="poster-close" onclick="closePoster()">关闭</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+// ===== Global =====
+let swiper;
+let quizAnswers = [];
+let currentQuiz = 0;
+
+const quizData = [
+  {
+    q: "当你面对生活中的压力时，你会选择？",
+    options: [
+      { text: "拿起画笔，把情绪画进作品里", type: "painter" },
+      { text: "戴上皇冠，保护身边的人", type: "royal" },
+      { text: "穿上宇航服，去探索未知", type: "space" },
+      { text: "直面情绪，让愤怒成为力量", type: "angry" }
+    ]
+  },
+  {
+    q: "描述一下你理想的周末？",
+    options: [
+      { text: "在画室待一整天，自由创作", type: "painter" },
+      { text: "和朋友们聚会，照顾每个人", type: "royal" },
+      { text: "去一个新地方冒险探索", type: "space" },
+      { text: "做自己喜欢的事，不被打扰", type: "angry" }
+    ]
+  },
+  {
+    q: "朋友眼中的你更像？",
+    options: [
+      { text: "充满想象力的艺术家", type: "painter" },
+      { text: "可靠的守护天使", type: "royal" },
+      { text: "永远好奇的冒险家", type: "space" },
+      { text: "真诚表达的真性情", type: "angry" }
+    ]
+  }
+];
+
+const results = {
+  painter: {
+    title: "经典小画家MOLLY",
+    img: "images/molly-painter.jpg",
+    desc: "你拥有一颗纯真的艺术家之心。像2006年诞生的MOLLY一样，你沉浸在自己的创作世界里，用画笔记录所有天马行空的想象。倔强又坚定的你，相信努力向前就能突破一切难关。",
+    traits: ["自由创作", "天马行空", "倔强坚定"],
+    color: "#00B4D8"
+  },
+  royal: {
+    title: "ROYAL MOLLY",
+    img: "images/angry-molly-02.png",
+    desc: "你是童心王国的守护者。像2007年诞生的ROYAL MOLLY，从戴上皇冠的那一刻起，你就肩负起守护身边每一个人的责任。你让每个人都能守住心中的那个小孩。",
+    traits: ["守护担当", "温柔强大", "值得信赖"],
+    color: "#FFD700"
+  },
+  space: {
+    title: "SPACE MOLLY",
+    img: "images/angry-molly-03.png",
+    desc: "你是宇宙中的勇敢探索者。像2014年诞生的SPACE MOLLY，你怀揣勇气、好奇心与想象力，在未知中无畏前行。世界对你来说永远是新鲜的冒险。",
+    traits: ["勇敢探索", "好奇心", "无畏前行"],
+    color: "#9B5DE5"
+  },
+  angry: {
+    title: "Angry Molly",
+    img: "images/angry-molly-01.png",
+    desc: "愤怒不是负面情绪，而是燃烧的生命力。像2025年诞生的Angry Molly，你敢于真诚表达，对热爱的事物全情投入。你的「愤怒」是对世界的真实感知与真诚热爱。",
+    traits: ["真诚热烈", "敢于表达", "生命力"],
+    color: "#E60012"
+  }
+};
+
+const timelineData = [
+  { year: "2006", title: "经典小画家MOLLY", text: "在艺术家Kenny的公益绘画活动上，一个手持画笔、嘟嘴认真画画的小女孩MOLLY诞生了。湖蓝色眼睛，金色短发，沉浸在自己的创作世界。", img: "images/molly-painter.jpg" },
+  { year: "2007", title: "ROYAL MOLLY", text: "戴上皇冠的那一刻，她成为童心王国的守护者。守护身边每一个人的童年，守护他们心中那个无拘无束的小孩。", img: null },
+  { year: "2014", title: "SPACE MOLLY", text: "穿上太空服、戴上宇航员头盔，怀揣勇气与好奇心，在宇宙中勇敢前行，无畏探索未知的一切。", img: null },
+  { year: "2024", title: "Baby Molly", text: "3岁的她提醒你：无论多大年纪，都要留一个位置给孩童时期的自己。放肆倾吐委屈，做任何好奇的事。", img: null },
+  { year: "2025", title: "Angry Molly", text: "从倔强撅嘴小画家出发，延伸出充满活力的「愤怒」。但Angry并非单纯情绪，而是燃烧的炽热生命力，敢于真诚表达的情感能量。", img: "images/angry-molly-01.png" }
+];
+
+// ===== Loading =====
+let loadProgress = 0;
+function updateLoad() {
+  loadProgress += Math.random() * 15 + 5;
+  if (loadProgress >= 100) {
+    loadProgress = 100;
+    document.getElementById('loadBar').style.width = '100%';
+    document.getElementById('loadText').textContent = '欢迎来到MOLLY的世界';
+    setTimeout(() => {
+      document.getElementById('loading-screen').classList.add('hidden');
+      initSwiper();
+    }, 600);
+  } else {
+    document.getElementById('loadBar').style.width = loadProgress + '%';
+    const texts = ['正在加载MOLLY的世界...', '准备画笔与颜料...', '穿上太空服...', '戴上皇冠...', '点燃愤怒的火焰...'];
+    document.getElementById('loadText').textContent = texts[Math.floor(loadProgress / 20)];
+    setTimeout(updateLoad, 200);
+  }
+}
+setTimeout(updateLoad, 300);
+
+// ===== Swiper =====
+function initSwiper() {
+  swiper = new Swiper('.mySwiper', {
+    direction: 'vertical',
+    pagination: { clickable: true },
+    mousewheel: true,
+    touchRatio: 1,
+    resistance: true,
+    on: {
+      slideChange: function() {
+        if (this.activeIndex === 1) initTimeline();
+        if (this.activeIndex === 2) initQuiz();
+        if (this.activeIndex === 4) initParticles('ctaCanvas');
+      }
+    }
+  });
+  initParticles('homeCanvas');
+  startMollyRotate();
+}
+
+// ===== Molly 3D Rotate =====
+let mollyIdx = 0;
+const mollyImages = ['images/angry-molly-01.png','images/angry-molly-02.png','images/angry-molly-03.png','images/angry-molly-04.png','images/angry-molly-05.png'];
+function startMollyRotate() {
+  const img = document.getElementById('heroMolly');
+  if (!img) return;
+  setInterval(() => {
+    mollyIdx = (mollyIdx + 1) % mollyImages.length;
+    img.style.opacity = '0';
+    setTimeout(() => { img.src = mollyImages[mollyIdx]; img.style.opacity = '1'; }, 150);
+  }, 2000);
+}
+
+// ===== Particles =====
+function initParticles(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const particles = [];
+  const colors = ['#E60012','#FF6B9D','#FFD700','#00B4D8','#9B5DE5'];
+  for (let i = 0; i < 30; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 4 + 1,
+      c: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      a: Math.random() * 0.5 + 0.2
+    });
+  }
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+      if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.c; ctx.globalAlpha = p.a; ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+// ===== Timeline =====
+let timelineInited = false;
+function initTimeline() {
+  if (timelineInited) return;
+  timelineInited = true;
+  initParticles('timeCanvas');
+  const nodes = document.querySelectorAll('.timeline-node');
+  const detail = document.getElementById('timelineDetail');
+  const yearColors = ['#E60012','#FF6B9D','#FFD700','#00B4D8','#9B5DE5'];
+  nodes.forEach((node, idx) => {
+    node.addEventListener('click', () => {
+      nodes.forEach(n => n.classList.remove('active'));
+      node.classList.add('active');
+      const data = timelineData[idx];
+      const yearEl = document.getElementById('detailYear');
+      yearEl.textContent = data.year + ' · ' + data.title;
+      yearEl.style.color = yearColors[idx];
+      document.getElementById('detailText').textContent = data.text;
+      const img = document.getElementById('detailImg');
+      if (data.img) { img.src = data.img; img.style.display = 'block'; }
+      else { img.style.display = 'none'; }
+      detail.classList.remove('show');
+      void detail.offsetWidth;
+      detail.classList.add('show');
+    });
+  });
+  setTimeout(() => nodes[0].click(), 400);
+}
+
+// ===== Quiz =====
+let quizInited = false;
+function initQuiz() {
+  if (quizInited) return;
+  quizInited = true;
+  initParticles('quizCanvas');
+  renderQuiz();
+}
+function renderQuiz() {
+  const data = quizData[currentQuiz];
+  document.getElementById('quizQ').textContent = data.q;
+  document.getElementById('quizBar').style.width = ((currentQuiz + 1) / quizData.length * 100) + '%';
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = '';
+  data.options.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-option';
+    div.setAttribute('data-label', ['A','B','C','D'][i]);
+    div.textContent = opt.text;
+    div.addEventListener('click', () => selectOption(opt.type));
+    opts.appendChild(div);
+  });
+}
+function selectOption(type) {
+  quizAnswers.push(type);
+  currentQuiz++;
+  if (currentQuiz < quizData.length) {
+    renderQuiz();
+  } else {
+    showResult();
+  }
+}
+function showResult() {
+  const counts = {};
+  quizAnswers.forEach(a => counts[a] = (counts[a] || 0) + 1);
+  const winner = Object.entries(counts).sort((a,b) => b[1] - a[1])[0][0];
+  const r = results[winner];
+  document.getElementById('resultTitle').innerHTML = '你是<br>' + r.title;
+  document.getElementById('resultImg').src = r.img;
+  document.getElementById('resultDesc').textContent = r.desc;
+  document.getElementById('resultTraits').innerHTML = r.traits.map(t => `<span>${t}</span>`).join('');
+  swiper.slideTo(3);
+  initParticles('resultCanvas');
+}
+
+// ===== Poster Generation =====
+function generatePoster() {
+  const canvas = document.getElementById('poster-canvas');
+  const ctx = canvas.getContext('2d');
+  const w = 750, h = 1334;
+
+  // Background
+  const grd = ctx.createLinearGradient(0, 0, 0, h);
+  grd.addColorStop(0, '#1a1a3e');
+  grd.addColorStop(0.5, '#2d1b4e');
+  grd.addColorStop(1, '#1a0a2e');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, w, h);
+
+  // Decorative circles
+  ctx.beginPath(); ctx.arc(w/2, 420, 320, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(230,0,18,0.12)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(w/2, 420, 260, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,107,157,0.08)'; ctx.stroke();
+
+  // POP MART logo
+  ctx.fillStyle = '#E60012';
+  ctx.fillRect(w/2 - 130, 60, 260, 54);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 30px Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('POP MART', w/2, 97);
+
+  // MOLLY 20th
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '22px Arial, sans-serif';
+  ctx.fillText('MOLLY 20th ANNIVERSARY', w/2, 158);
+
+  // Title
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 54px Arial, sans-serif';
+  ctx.fillText('遇见你的MOLLY', w/2, 230);
+
+  // Result title
+  const titleText = document.getElementById('resultTitle').innerText.replace(/\n/g, ' ');
+  ctx.fillStyle = '#FF6B9D';
+  ctx.font = 'bold 42px Arial, sans-serif';
+  ctx.fillText(titleText, w/2, 300);
+
+  // Load and draw MOLLY image
+  const imgSrc = document.getElementById('resultImg').src;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() {
+    const iw = 360, ih = img.height * (iw / img.width);
+    const ix = (w - iw) / 2, iy = 340;
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(ix, iy, iw, ih + 20, 20);
+    ctx.clip();
+    ctx.drawImage(img, ix, iy, iw, ih);
+    ctx.restore();
+    finishPoster(ctx, w, h);
+  };
+  img.onerror = function() {
+    // fallback circle
+    ctx.beginPath(); ctx.arc(w/2, 520, 180, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '26px Arial, sans-serif';
+    ctx.fillText('[ MOLLY形象 ]', w/2, 530);
+    finishPoster(ctx, w, h);
+  };
+  img.src = imgSrc;
+}
+
+function finishPoster(ctx, w, h) {
+  // Desc
+  const desc = document.getElementById('resultDesc').textContent;
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '24px Arial, sans-serif';
+  wrapText(ctx, desc, w/2, 780, 620, 42);
+
+  // Traits
+  const traits = Array.from(document.querySelectorAll('.result-traits span')).map(s => s.textContent);
+  const tw = traits.length * 110 - 20;
+  let tx = (w - tw) / 2;
+  traits.forEach(t => {
+    ctx.beginPath();
+    ctx.moveTo(tx + 22, 960);
+    ctx.lineTo(tx + 68, 960);
+    ctx.quadraticCurveTo(tx + 90, 960, tx + 90, 982);
+    ctx.lineTo(tx + 90, 1004);
+    ctx.quadraticCurveTo(tx + 90, 1026, tx + 68, 1026);
+    ctx.lineTo(tx + 22, 1026);
+    ctx.quadraticCurveTo(tx, 1026, tx, 1004);
+    ctx.lineTo(tx, 982);
+    ctx.quadraticCurveTo(tx, 960, tx + 22, 960);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(230,0,18,0.2)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(230,0,18,0.5)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#FF6B9D';
+    ctx.font = '20px Arial, sans-serif';
+    ctx.fillText(t, tx + 45, 1000);
+    tx += 110;
+  });
+
+  // QR area
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.moveTo(w/2 - 100 + 16, 1070);
+  ctx.lineTo(w/2 + 100 - 16, 1070);
+  ctx.quadraticCurveTo(w/2 + 100, 1070, w/2 + 100, 1086);
+  ctx.lineTo(w/2 + 100, 1254);
+  ctx.quadraticCurveTo(w/2 + 100, 1270, w/2 + 100 - 16, 1270);
+  ctx.lineTo(w/2 - 100 + 16, 1270);
+  ctx.quadraticCurveTo(w/2 - 100, 1270, w/2 - 100, 1254);
+  ctx.lineTo(w/2 - 100, 1086);
+  ctx.quadraticCurveTo(w/2 - 100, 1070, w/2 - 100 + 16, 1070);
+  ctx.closePath();
+  ctx.fill();
+
+  // QR placeholder
+  ctx.fillStyle = '#f0f0f0';
+  ctx.fillRect(w/2 - 80, 1090, 160, 160);
+  ctx.fillStyle = '#ccc';
+  ctx.font = '16px Arial, sans-serif';
+  ctx.fillText('泡泡玛特', w/2, 1180);
+
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 20px Arial, sans-serif';
+  ctx.fillText('扫码进入抽盒机', w/2, 1308);
+
+  // Footer
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '18px Arial, sans-serif';
+  ctx.fillText('泡泡玛特 POP MART', w/2, 1285);
+
+  document.getElementById('poster-modal').classList.add('show');
+}
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const chars = text.split('');
+  let line = '';
+  let testLine = '';
+  let lineArray = [];
+  for (let i = 0; i < chars.length; i++) {
+    testLine += chars[i];
+    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+      lineArray.push(line);
+      line = chars[i];
+      testLine = chars[i];
+    } else {
+      line = testLine;
+    }
+  }
+  lineArray.push(line);
+  lineArray.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+}
+function closePoster() {
+  document.getElementById('poster-modal').classList.remove('show');
+}
+
+// ===== Resize =====
+window.addEventListener('resize', () => {
+  ['homeCanvas','timeCanvas','quizCanvas','resultCanvas','ctaCanvas'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) { c.width = window.innerWidth; c.height = window.innerHeight; }
+  });
+});
+</script>
+</body>
+</html>
