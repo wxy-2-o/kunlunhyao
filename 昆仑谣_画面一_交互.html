@@ -10,8 +10,8 @@
 html,body{width:100%;height:100%;overflow:hidden;background:var(--void);font-family:'Noto Serif SC','PingFang SC',serif}
 
 /* ===== 场景图层 ===== */
-#stage{position:fixed;inset:0;z-index:0}
-.shot{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .8s cubic-bezier(.4,0,.2,1)}
+#stage{position:fixed;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:var(--void)}
+.shot{position:relative;width:100vmin;height:100vmin;flex-shrink:0;background-size:cover;background-position:center;opacity:0;transition:opacity .8s cubic-bezier(.4,0,.2,1)}
 .shot.on{opacity:1}
 .shot.zoom-in{animation:zi 12s ease-out both}
 .shot.zoom-out{animation:zo 8s ease-in-out both}
@@ -83,9 +83,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--void);font-fam
 #sub{position:fixed;bottom:10%;left:50%;transform:translateX(-50%);z-index:12;text-align:center;pointer-events:none;opacity:0;transition:opacity .5s;max-width:80vw}
 #sub.on{opacity:1}
 .sub-line{display:inline-block;padding:6px 16px;border-radius:8px;background:rgba(6,5,15,0.4);backdrop-filter:blur(4px);font-size:clamp(14px,3.5vw,24px);letter-spacing:3px;color:rgba(255,255,255,.5);line-height:1.9}
-/* 右侧竖排字幕（王母娘娘等特定幕） */
-#sub.sub-right{right:5%;left:auto;bottom:12%;transform:none;text-align:left;max-width:20vw}
-#sub.sub-right .sub-line{writing-mode:vertical-rl;letter-spacing:4px;padding:10px 14px;font-size:clamp(13px,2.2vw,22px)}
+/* 右侧竖排字幕（王母娘娘等特定幕）—— 相对于图片区域定位 */
+#sub.sub-right{right:calc((100vw - 100vmin) / 2 + 3vmin);left:auto;bottom:12%;transform:none;text-align:left;max-width:18vmin}
+#sub.sub-right .sub-line{writing-mode:vertical-rl;letter-spacing:4px;padding:10px 14px;font-size:clamp(11px,1.6vw,18px)}
 .sub-line .ch{display:inline-block;opacity:0;animation:chSubIn .4s cubic-bezier(.2,.8,.3,1) both}
 @keyframes chSubIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes subRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
