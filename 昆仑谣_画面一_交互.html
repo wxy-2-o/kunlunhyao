@@ -10,19 +10,23 @@
 html,body{width:100%;height:100%;overflow:hidden;background:var(--void);font-family:'Noto Serif SC','PingFang SC',serif}
 
 /* ===== 场景图层 ===== */
-#stage{position:fixed;inset:0;z-index:0;display:flex;align-items:center;justify-content:center;background:var(--void)}
-.shot{position:relative;width:100vmin;height:100vmin;flex-shrink:0;background-size:cover;background-position:center;opacity:0;transition:opacity .8s cubic-bezier(.4,0,.2,1)}
+#stage{position:fixed;inset:0;z-index:0;background:var(--void)}
+.shot{position:absolute;width:100vmin;height:100vmin;left:calc(50% - 50vmin);top:calc(50% - 50vmin);background-size:cover;background-position:center;opacity:0;transition:opacity .8s cubic-bezier(.4,0,.2,1);overflow:hidden}
 .shot.on{opacity:1}
 .shot.zoom-in{animation:zi 12s ease-out both}
 .shot.zoom-out{animation:zo 8s ease-in-out both}
 .shot.pan-r{animation:pr 10s ease-out both}
 .shot.pan-l{animation:pl 10s ease-out both}
 .shot.zoom-slow{animation:zs 15s ease-out both}
-@keyframes zi{from{transform:scale(1)}to{transform:scale(1.15)}}
-@keyframes zo{from{transform:scale(1.15)}to{transform:scale(1)}}
+/* 关键场景zoom焦点：避免王母娘娘头顶/神树树冠被裁切 */
+#s5.zoom-slow,#s6.zoom-in{transform-origin:50% 35%}
+#s7.zoom-in{transform-origin:50% 42%}
+#s8.zoom-slow{transform-origin:55% 38%}
+@keyframes zi{from{transform:scale(1)}to{transform:scale(1.12)}}
+@keyframes zo{from{transform:scale(1.12)}to{transform:scale(1)}}
 @keyframes pr{from{transform:scale(1.05);transform-origin:left center}to{transform:scale(1.05);transform-origin:right center}}
 @keyframes pl{from{transform:scale(1.05);transform-origin:right center}to{transform:scale(1.05);transform-origin:left center}}
-@keyframes zs{from{transform:scale(1)}to{transform:scale(1.08)}}
+@keyframes zs{from{transform:scale(1)}to{transform:scale(1.06)}}
 
 /* ===== 全局色调统一叠层 ===== */
 #tone-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;
